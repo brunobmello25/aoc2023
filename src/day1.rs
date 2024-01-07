@@ -165,6 +165,29 @@ mod tests {
             ("5lclone", 51),
             ("six89bdlssd", 69),
             ("tbvdcsjsvmxtshv3fourseven4kmxvvfour9", 39),
+            ("f1lhrbsix", 16),
+            ("mbbkv7ffpk", 77),
+            ("9eightseventhree", 93),
+            ("9jpvccsvhqpnhsl8", 98),
+            ("nvcnninefour9", 99),
+            ("v237ppqbhb", 27),
+            ("78six", 76),
+            ("9eightseventhree", 93),
+            ("9jpvccsvhqpnhsl8", 98),
+            ("nvcnninefour9", 99),
+            ("v237ppqbhb", 27),
+            ("78six", 76),
+            ("four165oneightxcm",41),
+            ("9pjcsfbrghnineqzth4smx", 94),
+            ("46fpfptrq1mbqmbnktqeight", 48),
+            ("stbxvlcqz5krd1threethreeonefour", 54),
+            ("48six5seven", 47),
+            ("6bmltlrvrgpcfhjhmfiveqzfxptjtwo4zvsqqxgbrdlzsfmtzdd", 64),
+            (
+            "9eightseventhree\n9jpvccsvhqpnhsl8\nnvcnninefour9\nv237ppqbhb\n78six\nfour165oneightxcm\n9pjcsfbrghnineqzth4smx\n46fpfptrq1mbqmbnktqeight\nstbxvlcqz5krd1threethreeonefour\n48six5seven\n6bmltlrvrgpcfhjhmfiveqzfxptjtwo4zvsqqxgbrdlzsfmtzdd",
+            93 + 98 + 99 + 27 + 76 + 41 + 94 + 48 + 54 + 47 + 64
+            )
+
         ];
         for test in tests {
             assert_eq!(get_sum(get_cleaned_line(test.0.to_string())), test.1);
