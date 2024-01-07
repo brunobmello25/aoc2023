@@ -2,6 +2,11 @@ pub fn run() {
     run_part_2();
 }
 
+const NUMERIC_WORDS: [&str; 9] = [
+    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+];
+
+#[allow(dead_code)]
 fn run_part_1() {
     let contents = std::fs::read_to_string("input/day1.txt").unwrap();
 
@@ -11,55 +16,16 @@ fn run_part_1() {
 }
 
 fn run_part_2() {
-    let mut contents = std::fs::read_to_string("input/day1.txt").unwrap();
-
-    let mut resulting_lines = vec![];
+    let contents = std::fs::read_to_string("input/day1.txt").unwrap();
+    let mut cleaned_lines = vec![];
 
     for line in contents.lines() {
-        let mut new_line = "".to_string();
-
-        for ch in line.chars() {
-            new_line.push(ch);
-            new_line = replace_numeric_word(new_line);
-        }
-
-        resulting_lines.push(new_line);
+        let cleaned_line = get_cleaned_line(line.to_string());
+        cleaned_lines.push(cleaned_line);
     }
 
-    let sum = get_sum(resulting_lines.join("\n"));
-
+    let sum = get_sum(cleaned_lines.join("\n"));
     println!("sum is {}", sum);
-}
-
-fn replace_numeric_word(line: String) -> String {
-    let mut result = line.clone();
-    let words = vec![
-        "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
-    ];
-    for word in words {
-        if result.contains(word) {
-            let numeric_equivalent = get_numeric_equivalent(word);
-            println!("replacing {} with {} in {}", word, numeric_equivalent, line);
-            result = result.replace(word, numeric_equivalent.to_string().as_str());
-        }
-    }
-
-    return result;
-}
-
-fn get_numeric_equivalent(word: &str) -> char {
-    match word {
-        "one" => '1',
-        "two" => '2',
-        "three" => '3',
-        "four" => '4',
-        "five" => '5',
-        "six" => '6',
-        "seven" => '7',
-        "eight" => '8',
-        "nine" => '9',
-        _ => panic!("unknown word {}", word),
-    }
 }
 
 fn get_sum(contents: String) -> usize {
@@ -86,4 +52,122 @@ fn get_sum(contents: String) -> usize {
 
 fn is_numeric(ch: char) -> bool {
     return ch >= '0' && ch <= '9';
+}
+
+fn replace_numeric_word(line: String) -> String {
+    for word in NUMERIC_WORDS {
+        if line.contains(word) {
+            let digit = get_numeric_word_digit(word);
+            return line.replace(word, &digit.to_string());
+        }
+    }
+
+    return line;
+}
+
+fn get_cleaned_line(line: String) -> String {
+    let mut consuming = "".to_string();
+
+    for ch in line.chars() {
+        consuming.push(ch);
+        if has_numeric_word(&consuming) {
+            consuming = replace_numeric_word(consuming);
+        }
+    }
+
+    return consuming;
+}
+
+fn get_numeric_word_digit(word: &str) -> usize {
+    match word {
+        "one" => 1,
+        "two" => 2,
+        "three" => 3,
+        "four" => 4,
+        "five" => 5,
+        "six" => 6,
+        "seven" => 7,
+        "eight" => 8,
+        "nine" => 9,
+        _ => unreachable!(),
+    }
+}
+
+fn has_numeric_word(line: &String) -> bool {
+    for word in NUMERIC_WORDS {
+        if line.contains(word) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::day1::get_sum;
+
+    use super::get_cleaned_line;
+
+    #[test]
+    fn test_get_cleaned_line() {
+        assert_eq!(
+            get_cleaned_line("4bvnccbdh4onefztdrpq62vvbnvpxxvgrngnfjgfk".to_string()),
+            "4bvnccbdh41fztdrpq62vvbnvpxxvgrngnfjgfk"
+        );
+        assert_eq!(
+            get_cleaned_line("2ninebvgdcfxtktqjxjqvxfgjdqfhv5threegqtsfhtfxg".to_string()),
+            "29bvgdcfxtktqjxjqvxfgjdqfhv53gqtsfhtfxg"
+        );
+        assert_eq!(
+            get_cleaned_line("xtwo7threemxbtpsvjkgrfivethree2".to_string()),
+            "x273mxbtpsvjkgr532"
+        );
+        assert_eq!(
+            get_cleaned_line("cqoneighteightjnrfkplvninefivemck18mnhszhkv4".to_string()),
+            "cq1ight8jnrfkplv95mck18mnhszhkv4"
+        );
+        assert_eq!(
+            get_cleaned_line("tbvdcsjsvmxtshv3fourseven4kmxvvfour9".to_string()),
+            "tbvdcsjsvmxtshv3474kmxvv49"
+        );
+        assert_eq!(
+            get_cleaned_line("bxcsix19six8dnqsbx".to_string()),
+            "bxc61968dnqsbx"
+        );
+    }
+
+    #[test]
+    fn test_get_sum() {
+        let tests = vec![
+            ("n7", 77),
+            ("1three2", 12),
+            ("cqoneighteightjnrfkplvninefivemck18mnhszhkv4", 14),
+            ("tbvdcsjsvmxtshv3fourseven4kmxvvfour9", 39),
+            ("bxcsix19six8dnqsbx", 68),
+            ("cqoneighteightjnrfkplvninefivemck18mnhszhkv4\ntbvdcsjsvmxtshv3fourseven4kmxvvfour9\nbxcsix19six8dnqsbx", 14 + 39 + 68),
+            ("2ninebvgdcfxtktqjxjqvxfgjdqfhv5threegqtsfhtfxg", 23),
+            ("6threev", 63),
+            ("69sixnine", 69),
+            ("1btphrrvxdeightonekdhv8", 18),
+            ("ninerlsbznvfn9", 99),
+            ("sixthree6lxcrsevenseven69twonegs", 62),
+            ("xrbtzbklqsl11", 11),
+            ("5p", 55),
+            ("66bnfj", 66),
+            ("6bnfj", 66),
+            ("bnfj6", 66),
+            ("bnfjsix", 66),
+            ("sixbnfjix", 66),
+            ("6bnfj", 66),
+            ("bn655556fj", 66),
+            ("bn65fivefj", 65),
+            ("5lclone", 51),
+            ("six89bdlssd", 69),
+            ("tbvdcsjsvmxtshv3fourseven4kmxvvfour9", 39),
+        ];
+        for test in tests {
+            assert_eq!(get_sum(get_cleaned_line(test.0.to_string())), test.1);
+        }
+    }
 }
