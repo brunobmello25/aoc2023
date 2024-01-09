@@ -19,7 +19,30 @@ struct GameAmounts {
 }
 
 pub fn run() {
-    run_part_1();
+    run_part_2();
+}
+
+#[allow(dead_code)]
+fn run_part_2() {
+    let contents = std::fs::read_to_string("input/day2.txt").unwrap();
+
+    let games = parse_all_lines(contents);
+    let mut amounts = vec![];
+    for game in games {
+        let game_amounts = get_game_amount(game);
+
+        let (mut max_red, mut max_green, mut max_blue) = (0, 0, 0);
+
+        if game_amounts.red > max_red {
+            max_red = game_amounts.red;
+            max_green = game_amounts.green;
+            max_blue = game_amounts.blue;
+        }
+
+        amounts.push(max_red * max_green * max_blue);
+    }
+
+    println!("sum: {}", amounts.iter().sum::<usize>());
 }
 
 #[allow(dead_code)]
