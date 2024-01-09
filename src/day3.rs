@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs};
+use std::fs;
 
 #[derive(Debug, PartialEq)]
 struct Matrix<T> {
