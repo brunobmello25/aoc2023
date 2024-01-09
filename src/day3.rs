@@ -1,4 +1,4 @@
-use std::fs;
+use std::{collections::HashMap, fs};
 
 #[derive(Debug, PartialEq)]
 struct Matrix<T> {
@@ -21,7 +21,105 @@ impl<T> Matrix<T> {
 }
 
 pub fn run() {
-    run_part_1();
+    run_part_2();
+}
+
+#[allow(dead_code)]
+fn run_part_2() {
+    let contents = fs::read_to_string("input/day3.txt").unwrap();
+    let matrix: Vec<Vec<_>> = contents
+        .split("\n")
+        .map(|line| line.chars().collect())
+        .collect();
+
+    let mut checked_surrounds: Vec<(usize, usize)> = vec![];
+
+    let mut sum = 0;
+    for y in 0..matrix.len() {
+        for x in 0..matrix[y].len() {
+            if matrix[y][x] == '*' {
+                let surrounding_numbers =
+                    get_surrounding_numers(&mut checked_surrounds, &matrix, x, y);
+
+                println!(
+                    "({},{}) has {:?} surrounding numbers",
+                    x, y, surrounding_numbers
+                );
+                if surrounding_numbers.len() == 2 {
+                    sum += surrounding_numbers[0] * surrounding_numbers[1];
+                }
+            }
+        }
+    }
+
+    println!("result: {}", sum);
+}
+
+fn get_surrounding_numers(
+    cells_visited: &mut Vec<(usize, usize)>,
+    matrix: &Vec<Vec<char>>,
+    x: usize,
+    y: usize,
+) -> Vec<i32> {
+    let directions = vec![
+        (-1, -1),
+        (-1, 0),
+        (-1, 1),
+        (0, -1),
+        (0, 1),
+        (1, -1),
+        (1, 0),
+        (1, 1),
+    ];
+    let mut surrounding_numbers: Vec<i32> = vec![];
+    for direction in directions {
+        let current_x = x as isize + direction.0;
+        let current_y = y as isize + direction.1;
+
+        if current_x < 0 || current_y < 0 {
+            continue;
+        }
+        if current_y > matrix.len() as isize
+            || current_x > matrix[current_y as usize].len() as isize
+        {
+            continue;
+        }
+        let current_x = current_x as usize;
+        let current_y = current_y as usize;
+
+        if cells_visited.contains(&(current_x, current_y)) {
+            continue;
+        }
+
+        if matrix[current_y][current_x].is_ascii_digit() {
+            let mut consuming = "".to_string();
+            let mut x_offset = 0;
+            while let Some(ch) = matrix[current_y].get((current_x as isize + x_offset) as usize) {
+                println!("Looking at {} at ({},{})", ch, current_x, current_y);
+                if ch.is_ascii_digit() {
+                    cells_visited.push(((current_x as isize + x_offset) as usize, current_y));
+                    x_offset += 1;
+                    consuming.push(*ch);
+                } else {
+                    break;
+                }
+            }
+            x_offset = -1;
+            while let Some(ch) = matrix[current_y].get((current_x as isize + x_offset) as usize) {
+                println!("Looking at {} at ({},{})", ch, current_x, current_y);
+                if ch.is_ascii_digit() {
+                    cells_visited.push(((current_x as isize + x_offset) as usize, current_y));
+                    x_offset -= 1;
+                    consuming.insert(0, *ch);
+                } else {
+                    break;
+                }
+            }
+            surrounding_numbers.push(consuming.parse::<i32>().unwrap());
+        }
+    }
+
+    return surrounding_numbers;
 }
 
 #[allow(dead_code)]
@@ -125,7 +223,7 @@ fn parse_input(contents: String) -> Matrix<char> {
 
 #[cfg(test)]
 mod tests {
-    use crate::day3::{has_symbol_around, Matrix};
+    use crate::day3::{get_surrounding_numers, has_symbol_around, Matrix};
 
     use super::parse_input;
 
@@ -167,5 +265,19 @@ mod tests {
         assert!(!has_symbol_around(&input, 2, 0));
         assert!(!has_symbol_around(&input, 2, 1));
         assert!(!has_symbol_around(&input, 2, 2));
+    }
+
+    #[test]
+    fn test_get_surrounding_numbers() {
+        let input: Vec<Vec<_>> = "467..1\n...*..\n..35.."
+            .to_string()
+            .lines()
+            .map(|line| line.chars().collect())
+            .collect();
+
+        assert_eq!(
+            get_surrounding_numers(&mut vec![], &input, 3, 1),
+            vec![467, 35]
+        );
     }
 }
