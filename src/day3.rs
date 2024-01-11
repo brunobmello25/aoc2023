@@ -20,6 +20,7 @@ impl<T> Matrix<T> {
     }
 }
 
+#[allow(dead_code)]
 pub fn run() {
     run_part_2();
 }
@@ -164,29 +165,6 @@ fn run_part_1() {
 
 fn is_symbol(ch: char) -> bool {
     return !ch.is_ascii_digit() && ch != '.';
-}
-
-fn has_gear_around(matrix: &Matrix<char>, x: isize, y: isize) -> bool {
-    let directions: Vec<(isize, isize)> = vec![
-        (-1, -1),
-        (-1, 0),
-        (-1, 1),
-        (0, -1),
-        (0, 1),
-        (1, -1),
-        (1, 0),
-        (1, 1),
-    ];
-
-    let mut result = false;
-    for (dx, dy) in directions {
-        if let Some(ch) = matrix.get(x + dx, y + dy) {
-            if *ch == '*' {
-                result = true;
-            }
-        }
-    }
-    return result;
 }
 
 fn has_symbol_around(matrix: &Matrix<char>, x: isize, y: isize) -> bool {

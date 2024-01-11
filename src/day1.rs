@@ -1,6 +1,7 @@
 type WordData = (String, isize);
 type DigitData = (char, isize);
 
+#[allow(dead_code)]
 pub fn run() {
     run_part_2();
 }

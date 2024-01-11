@@ -18,6 +18,7 @@ struct GameAmounts {
     blue: usize,
 }
 
+#[allow(dead_code)]
 pub fn run() {
     run_part_2();
 }
