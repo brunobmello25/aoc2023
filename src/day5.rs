@@ -40,6 +40,37 @@ impl Almanac1 {
     }
 }
 
+impl Almanac2 {
+    fn get_seeds_destinations(&self) -> Vec<usize> {
+        let mut dests = vec![];
+        println!("seeds_data: {:?}", self.seeds_data);
+
+        for seed_data in &self.seeds_data {
+            for seed in seed_data.start..seed_data.length {
+                println!("converting seed {}", seed);
+                let mut found = false;
+                let mut origin = "seed".to_string();
+                let mut seed_value = seed;
+
+                while !found {
+                    println!("{} -> {}", origin, seed_value);
+                    let conversion_map = self.maps.iter().find(|m| m.from == origin).unwrap();
+
+                    seed_value = conversion_map.get_destination(seed_value);
+                    origin = conversion_map.to.clone();
+
+                    if conversion_map.to == "location" {
+                        found = true;
+                        dests.push(seed_value);
+                    }
+                }
+            }
+        }
+
+        return dests;
+    }
+}
+
 impl FromStr for Almanac1 {
     type Err = Box<dyn Error>;
 
@@ -257,7 +288,48 @@ mod tests {
     }
 
     #[test]
-    fn test_get_seeds_destinations() {
+    fn test_get_seeds_destinations_part_2() {
+        let input = indoc! {"
+            seeds: 79 14 55 13
+
+            seed-to-soil map:
+            50 98 2
+            52 50 48
+
+            soil-to-fertilizer map:
+            0 15 37
+            37 52 2
+            39 0 15
+
+            fertilizer-to-water map:
+            49 53 8
+            0 11 42
+            42 0 7
+            57 7 4
+
+            water-to-light map:
+            88 18 7
+            18 25 70
+
+            light-to-temperature map:
+            45 77 23
+            81 45 19
+            68 64 13
+
+            temperature-to-humidity map:
+            0 69 1
+            1 0 69
+
+            humidity-to-location map:
+            60 56 37
+            56 93 4
+        "};
+        let almanac = input.parse::<Almanac2>().unwrap();
+        assert_eq!(*almanac.get_seeds_destinations().iter().min().unwrap(), 46);
+    }
+
+    #[test]
+    fn test_get_seeds_destinations_part_1() {
         let input = indoc! {"
             seeds: 79 14 55 13
 
