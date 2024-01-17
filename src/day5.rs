@@ -14,8 +14,8 @@ struct Almanac1 {
 }
 
 impl Almanac1 {
-    fn get_seeds_destinations(&self) -> Vec<usize> {
-        let mut dests = vec![];
+    fn get_seeds_destinations(&self) -> usize {
+        let mut lowest = usize::MAX;
 
         for seed in &self.seeds {
             let mut found = false;
@@ -23,7 +23,6 @@ impl Almanac1 {
             let mut seed_value = *seed;
 
             while !found {
-                println!("{} -> {}", origin, seed_value);
                 let conversion_map = self.maps.iter().find(|m| m.from == origin).unwrap();
 
                 seed_value = conversion_map.get_destination(seed_value);
@@ -31,29 +30,33 @@ impl Almanac1 {
 
                 if conversion_map.to == "location" {
                     found = true;
-                    dests.push(seed_value);
+                    if lowest > seed_value {
+                        lowest = seed_value;
+                    }
                 }
             }
         }
 
-        return dests;
+        return lowest;
     }
 }
 
 impl Almanac2 {
-    fn get_seeds_destinations(&self) -> Vec<usize> {
-        let mut dests = vec![];
-        println!("seeds_data: {:?}", self.seeds_data);
+    fn get_seeds_destinations(&self) -> usize {
+        let mut lowest: usize = usize::MAX;
 
         for seed_data in &self.seeds_data {
-            for seed in seed_data.start..seed_data.length {
-                println!("converting seed {}", seed);
+            println!(
+                "calculating seed from {} to {}",
+                seed_data.start,
+                seed_data.start + seed_data.length
+            );
+            for seed in seed_data.start..(seed_data.start + seed_data.length) {
                 let mut found = false;
                 let mut origin = "seed".to_string();
                 let mut seed_value = seed;
 
                 while !found {
-                    println!("{} -> {}", origin, seed_value);
                     let conversion_map = self.maps.iter().find(|m| m.from == origin).unwrap();
 
                     seed_value = conversion_map.get_destination(seed_value);
@@ -61,13 +64,15 @@ impl Almanac2 {
 
                     if conversion_map.to == "location" {
                         found = true;
-                        dests.push(seed_value);
+                        if lowest > seed_value {
+                            lowest = seed_value;
+                        }
                     }
                 }
             }
         }
 
-        return dests;
+        return lowest;
     }
 }
 
@@ -231,7 +236,20 @@ impl FromStr for Map {
 
 #[allow(dead_code)]
 pub fn run() {
-    run_part_1();
+    run_part_2();
+}
+
+#[allow(dead_code)]
+fn run_part_2() {
+    let input = fs::read_to_string("input/day5.txt").unwrap();
+    println!("finished reading");
+    let input = input.trim();
+    println!("finished triming");
+
+    let almanac = input.parse::<Almanac2>().unwrap();
+    println!("finished parsing");
+
+    println!("Result: {}", almanac.get_seeds_destinations());
 }
 
 #[allow(dead_code)]
@@ -239,14 +257,9 @@ fn run_part_1() {
     let input = fs::read_to_string("input/day5.txt").unwrap();
     let input = input.trim();
 
-    println!("a");
     let almanac = input.parse::<Almanac1>().unwrap();
-    println!("b");
 
-    println!(
-        "Result: {}",
-        almanac.get_seeds_destinations().iter().min().unwrap()
-    );
+    println!("Result: {}", almanac.get_seeds_destinations());
 }
 
 #[cfg(test)]
@@ -325,7 +338,8 @@ mod tests {
             56 93 4
         "};
         let almanac = input.parse::<Almanac2>().unwrap();
-        assert_eq!(*almanac.get_seeds_destinations().iter().min().unwrap(), 46);
+        let result = almanac.get_seeds_destinations();
+        assert_eq!(result, 46);
     }
 
     #[test]
@@ -366,7 +380,7 @@ mod tests {
             56 93 4
         "};
         let almanac = input.parse::<Almanac1>().unwrap();
-        assert_eq!(almanac.get_seeds_destinations(), vec![82, 43, 86, 35]);
+        assert_eq!(almanac.get_seeds_destinations(), 35);
     }
 
     #[test]
